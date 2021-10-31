@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <script crossorigin="anonymous" src="https://kit.fontawesome.com/9dfa6c6e5c.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <title>taskr | Tasks</title>
+</head>
+
+
+<script>
+    function deleteTask(taskId) {
+        $.ajax({
+            type: "POST",
+            url: 'http://localhost:8080/delete/' + taskId
+        })
+
+    }
+
+</script>
+
+<body>
+<div class="alert alert-info" role="alert">
+    <div style="display: flex">
+        <h3>taskr - hey, <span th:text="${userName}"></span>! your tasks at the moment are : </h3>
+        <img alt="..." class="rounded float-right" style="margin-left: auto; margin-right: 5px; width: 40px"
+             th:src="${avatarUrl}">
+            <a class="btn btn-secondary" href="/logout" >Logout</a>
+    </div>
+</div>
+<button class="btn btn-primary" data-target="#addTask" data-toggle="modal"
+        style="margin-left: 15px; margin-bottom: 15px;"
+        type="button">Add task
+</button>
+<div th:if="${userTasks.isEmpty()}">
+    <div style="display: flex; align-content: center; justify-content: center;">
+        <div class="alert alert-info" role="alert"
+             style="margin-left: 20px; margin-right: 20px; margin-top: 20px;">
+            <h3>No tasks yet? Try adding them.</h3>
+        </div>
+    </div>
+</div>
+<ul th:if="${!userTasks.isEmpty()}">
+    <li th:each="task : ${userTasks}">
+        <div class="alert alert-warning" role="alert" style="margin-right: 30px;">
+            <div style="display: flex; margin-left: auto;">
+                <b><span th:text="${task.creationDateTime}"></span></b>
+                <form action="#" method="post"
+                      style="justify-content: flex-end; display: flex; margin-left: auto; margin-bottom: 10px;"
+                      th:action="@{/tasks/delete/} + ${task.id}">
+                    <button class="btn btn-danger" type="submit">
+                        &times;
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"><span th:text="${task.name}"></span>
+                        <span th:switch="${task.priority.name()}">
+                        <span class="badge badge-danger" th:case="'HIGH'" th:text="${task.priority}"></span>
+                        <span class="badge badge-secondary" th:case="'MEDIUM'" th:text="${task.priority}"></span>
+                        <span class="badge badge-warning" th:case="'LOW'" th:text="${task.priority}"></span>
+                    </span>
+                    </h5>
+                    <span th:text="${task.description}"></span>
+                </div>
+            </div>
+        </div>
+    </li>
+</ul>
+
+<div aria-hidden="true" aria-labelledby="addTaskLabel" class="modal fade" id="addTask" role="dialog" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTaskLabel">Add task</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="#" method="post" th:action="@{/tasks/add}" th:object="${task}">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input class="form-control" id="title" placeholder="Meditate" th:field="*{name}" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select class="form-control" id="priority" th:field="*{priority}">
+                            <option th:each="prio : ${priorities}" th:text="${prio.name()}" th:value="${prio}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" rows="3" th:field="*{description}"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <input class="btn btn-primary" type="submit" value="Add"/>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
